@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WhatsApp Message Sender</title>
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        /* Your existing styles */
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>WhatsApp Message Sender</h1>
+        <form id="messageForm">
+            <div class="form-group">
+                <label for="phoneNumbers">Phone Numbers (comma-separated)</label>
+                <input type="text" class="form-control" id="phoneNumbers" placeholder="+91 6394129118, +91 1234567890" required>
+            </div>
+            <div class="form-group">
+                <label for="message">Message</label>
+                <textarea class="form-control" id="message" rows="5" placeholder="Hello, here is your message..." required></textarea>
+            </div>
+            <div class="form-group">
+                <label for="messageCount">Number of Messages to Send</label>
+                <input type="number" class="form-control" id="messageCount" value="1" min="1" required>
+            </div>
+            <div class="form-group">
+                <label for="delayBetweenMessages">Delay Between Messages (ms)</label>
+                <input type="number" class="form-control" id="delayBetweenMessages" value="100" min="0" required>
+            </div>
+            <div class="form-group">
+                <label for="pattern">Message Pattern</label>
+                <select class="form-control" id="pattern">
+                    <option value="">None</option>
+                    <option value="pyramid">Pyramid</option>
+                    <!-- Add more patterns here if needed -->
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="attachment">Attachment</label>
+                <input type="file" class="form-control" id="attachment" multiple>
+            </div>
+            <button type="submit" class="btn btn-primary">Send Messages</button>
+            <button type="button" id="stopButton" class="btn btn-danger">Stop Messages</button>
+        </form>
+        <div id="status"></div>
+        <div id="messageCount">Total messages sent: 0</div>
+        <div id="loader">
+            <div></div>
+        </div>
+    </div>
+
+    <!-- jQuery, Bootstrap JS, and Socket.IO -->
+    <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.0.9/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+    <script src="/socket.io/socket.io.js"></script>
+    <script>
+        $(document).ready(function() {
+            const socket = io();
+            let sendingInProgress = false;
+
+            function setFormState(isSending) {
+                $('#messageForm input, #messageForm textarea, #messageForm button').prop('disabled', isSending);
+                $('#messageForm').toggleClass('disabled-field', isSending);
+                $('#stopButton').toggle(isSending);
+            }
+
+            $('#messageForm').on('submit', function(event) {
+                event.preventDefault();
+
+                if (sendingInProgress) return;
+
+                const phoneNumbers = $('#phoneNumbers').val();
+                const message = $('#message').val();
+                const messageCount = $('#messageCount').val();
+                const delayBetweenMessages = $('#delayBetweenMessages').val();
+                const pattern = $('#pattern').val();
+                const attachment = $('#attachment')[0].files;
+
+                const formData = new FormData();
+                formData.append('phoneNumbers', phoneNumbers);
+                formData.append('message', message);
+                formData.append('messageCount', messageCount);
+                formData.append('delayBetweenMessages', delayBetweenMessages);
+                formData.append('pattern', pattern);
+
+                for (let i = 0; i < attachment.length; i++) {
+                    formData.append('attachment', attachment[i]);
+                }
+
+                $('#loader').show();
+                $('#status').empty();
+                setFormState(true);
+
+                $.ajax({
+                    url: '/send-messages',
+                    type: 'POST',
+                    data: formData,
+                    processData: false,
+                    contentType: false,
+                    success: function(response) {
+                        $('#loader').hide();
+                        setFormState(false);
+                        if (response.success) {
+                            $('#status').html(`<div class="alert alert-success">Messages sent successfully! Total messages sent: ${response.totalMessagesSent}</div>`);
+                        } else {
+                            $('#status').html(`<div class="alert alert-danger">Failed to send messages.</div>`);
+                        }
+                    },
+                    error: function(xhr, status, error) {
+                        $('#loader').hide();
+                        setFormState(false);
+                        $('#status').html(`<div class="alert alert-danger">Failed to send messages. ${xhr.responseText}</div>`);
+                        console.error('Error details:', xhr.responseText, status, error);
+                    }
+                });
+
+                sendingInProgress = true;
+            });
+
+            $('#stopButton').on('click', function() {
+                $.post('/stop-messages', function(response) {
+                    if (response.success) {
+                        $('#status').html(`<div class="alert alert-warning">Message sending has been stopped.</div>`);
+                    } else {
+                        $('#status').html(`<div class="alert alert-danger">Failed to stop message sending.</div>`);
+                    }
+                    $('#loader').hide();
+                    setFormState(false);
+                }).fail(function(xhr, status, error) {
+                    $('#status').html(`<div class="alert alert-danger">Failed to stop message sending. ${xhr.responseText}</div>`);
+                    $('#loader').hide();
+                    setFormState(false);
+                    console.error('Error details:', xhr.responseText, status, error);
+                });
+            });
+
+            socket.on('messageUpdate', function(data) {
+                $('#messageCount').text(`Total messages sent: ${data.totalMessagesSent}`);
+                $('#status').html(`<div class="alert alert-info">Sent ${data.totalMessagesSent} messages...</div>`);
+            });
+
+            $(document).ajaxComplete(function() {
+                sendingInProgress = false;
+            });
+        });
+    </script>
+</body>
+</html>

@@ -37,8 +37,8 @@ You can access the live application at [WhatsApp Automation](https://whatsapp-au
 1. **Clone the Repository**
 
     ```bash
-    git clone https://github.com/your-repo/whatsapp-message-sender.git
-    cd whatsapp-message-sender
+    git clone https://github.com/ShaktiNTripathi/Whatsapp-Automation.git
+    cd Whatsapp-Automation
     ```
 
 2. **Install Dependencies**
@@ -50,7 +50,7 @@ You can access the live application at [WhatsApp Automation](https://whatsapp-au
 3. **Run the Application**
 
     ```bash
-    npm start
+    node sendMessaage.js
     ```
 
     The server will start on `http://localhost:3000`.
@@ -89,5 +89,5 @@ Contributions are welcome! Please open an issue or submit a pull request to impr
 
 ## Contact
 
-For any questions or issues, please contact [your-email@example.com](mailto:shaktitripathi12298@gmail.com).
+For any questions or issues, please contact [shaktitripathi12298@gmail.com](mailto:shaktitripathi12298@gmail.com).
 

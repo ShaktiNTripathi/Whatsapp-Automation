@@ -6,7 +6,7 @@ The WhatsApp Message Sender is a web application that allows you to send bulk me
 
 ## Live URL
 
-You can access the live application at [WhatsApp Automation](https://whatsapp-automation-1r2gpghzd-shaktintripathis-projects.vercel.app/).
+You can access the live application at [WhatsApp Automation](https://whatsapp-automation-murex.vercel.app/).
 
 ## Features
 
@@ -83,15 +83,11 @@ You can access the live application at [WhatsApp Automation](https://whatsapp-au
 - **Client Not Ready**: Ensure the QR code is scanned and the client is connected. Check console logs for any authentication errors.
 - **Message Sending Issues**: Verify the format of phone numbers and ensure the WhatsApp client is correctly set up.
 
-## License
-
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
-
 ## Contributing
 
 Contributions are welcome! Please open an issue or submit a pull request to improve the project.
 
 ## Contact
 
-For any questions or issues, please contact [your-email@example.com](mailto:your-email@example.com).
+For any questions or issues, please contact [your-email@example.com](mailto:shaktitripathi12298@gmail.com).
 
